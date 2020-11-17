@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 """
-VHDL FFT mudule
+noise mudule
 
-FFT compare using python FFT built-in function
+noise techniques and patterns
 """
 
 #Standard python

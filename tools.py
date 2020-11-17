@@ -10,11 +10,30 @@ Useful routines on:
 #Standard python
 import os
 import time
+import pickle
 
 class Tools:
     """
     Tools class
     """
+    
+    def dump_obj_pickle(self, filepath, obj):
+        """
+        save object with pickle
+        """
+        with open(filepath, "wb") as myfile:
+            mypickler = pickle.Pickler(myfile)
+            mypickler.dump(obj)
+    
+    def load_obj_unpickle(self, filepath):
+        """
+        read object with pickle
+        """        
+        with open(filepath, "rb") as myfile:
+            myunpickler = pickle.Unpickler(myfile)
+            obj = myunpickler.load()
+            
+        return obj
     
     def print_dict_w_comments(self, mydict):
         """
@@ -100,3 +119,39 @@ class Tools:
             else:
                 tab = [hex(x) for x in dec_array]
         return tab
+        
+    def read_file_two_col_decimal(self, filepath):
+        """
+        Read text file decimal values in 2 columns separated by spaces
+        """
+        real = []
+        imag = []
+        with open(filepath, 'r') as myfile:
+            for line in myfile:
+                s = line.split()
+                real.append(int(s[0], base = 10))
+                imag.append(int(s[1], base = 10))
+                
+        return (real, imag)
+        
+    def read_file_one_col_decimal(self, filepath):
+        """
+        Read text file decimal values in column
+        """
+        val = []
+        with open(filepath, 'r') as myfile:
+            for line in myfile:
+                s = line.split()
+                val.append(int(s[0], base = 10))
+                
+        return val
+        
+    def write_file_one_col_decimal(self, filepath, array_val):
+        """
+        Write text file decimal values in column
+        """
+        val = []
+        with open(filepath, 'w') as myfile:
+            for item in array_val:
+                myfile.write("%d\n" % item)
+                
