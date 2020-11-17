@@ -1,7 +1,7 @@
 """
 spectrum module
 
-FFT function
+FFT function and spectral analyzis
 """
 
 #Standard python

@@ -4,6 +4,7 @@ tools module
 Useful routines on:
 - files I/O
 - basic formatting
+- pickle/unpickle
 ...
 """
 

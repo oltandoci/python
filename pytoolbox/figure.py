@@ -1,7 +1,7 @@
 """
 figure module
 
-plot utilities
+plot utilities, graphs
 """
 
 #Standard python

@@ -3,7 +3,7 @@
 """
 noise mudule
 
-noise techniques and patterns
+noise techniques and signal patterns
 """
 
 #Standard python
