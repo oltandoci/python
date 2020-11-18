@@ -1,0 +1,852 @@
+------------------------------------------------------------------------
+1. Introduction
+------------------------------------------------------------------------
+
+Pour fermer la ligne de commande utiliser CTRL+D (et non pas CTRL+C).
+L'opérateur // permet d'obtenir la partie entère d'une division.
+Le langage Python est sensible à la casse.
+Le type entier se nomme int en Python, les flottants se nomment float.
+On peut écrire une chaîne de caractères de différentes façons:
+- entre guillemets
+- entre apostrophes
+- entre triples guillemets
+- entre triples apostrophes
+Il vaut mieux utiliser les triples guillemets pour encadrer une chaîne de caractères car
+cela dispense d'échapper les guillemets et apostrophes et permet aussi d'écrire plusieurs 
+lignes sans symboliser les retours à la ligne au moyen de \n.
+
+Permutation de variables:
+    a,b = b,a
+    
+On peut supprimer des variables en utilisant le mot-clé del:
+    del a
+    
+Le symbole \ avant un saut à la ligne, indique à Python que l'instruction se poursuit
+à la ligne suivante.
+
+La fonction type renvoie le type de la variable:
+    type(num_var)
+    
+La fonction print permet d'afficher la valeur d'une ou plusieurs variables.
+En Python un commentaire débute par un # et se termine par un saut à la ligne.
+
+Conditions:
+    if expression:
+        commande
+    else:
+        commande
+        
+Très imortant: les deux points : qui terminent la condition (if + else) et l'identation.
+On peut avoir plusieurs conditions:
+    if expression:
+        commande
+    elif expression:
+        commande
+    elif expression:
+        commande
+    else:
+        commande
+
+True et False sont de type booléen.
+On peut utiliser les mots-clés and, or, not:
+    if a<=2 and a<=8:
+        print("a est dans l'intervalle")
+    
+    if a<2 or a>8:
+        print("a n'est pas dans l'intervalle")
+        
+    if majeur is not True:
+        print("Vous n'etas pas majeur")
+
+La fonction input() interrompt le programme et attend que l'utilisateur saisisse ce qu'il veut
+puis appuie sur Entrée.
+
+La syntaxe de la boucle while est la suivante:
+    while condition:
+        commande
+        
+La boucle for est définie comme ceci:
+    for element in sequence:
+        commande
+        
+Ici, element, est une variable créée par la boucle for, ce n'est pas à vous de l'instancier.
+Elle prend successivement chacune des valeurs figurant dans la séquence parcourue.
+Comme dans d'autres langages, on peut utiliser le mot-clé break pour interrombre une boucle for ou while.
+Egalement, on peut utiliser aussi le mot-clé continue en repartant directement à la ligne du for ou while.
+
+Les fonctions s'utilisent en respectant la syntaxe suivante:
+    def nom_fonction(param_1, param_2,...,param_n):
+        instructions
+        
+Une fonction ne peut pas modifier, par affectation, la valeur d'une variable extérieure à son espace local.
+Si on veut modifier une variable globale à l'intérieur d'une fonction, on utilise alors le mot-clé global:
+    def myfct()
+        global var #Python recherche var dans l'espace global
+        
+Les parenthèses sont obligatoires même si la fonction ne prend aucun paramètre.
+On peut appeler les paramètres dans le désordre mais il faut préciser leur nom.
+On peut également préciser une valeur par défaut pour les paramètres de la fomnction.:
+    def table(nb, max=10)
+
+Si on ajoute juste après la définition de la fonction des commentaires entoures par """ ... """ 
+on apelle cela une docstring i.e. une chaîne d'aide.
+Comme pour les variables, un nom de fonction ne renvoie que vers une fonction unique, on ne peut
+pas surcharger de fonctions en Python.
+L'instruction return signifier renvoyer la valeur.
+Le fonctions lambda sont définies comme suit:
+    lambda arg1, arg2,..., argN: instruction_de_retour
+    
+Pour l'appeler on peut tout simplement stocker la lambda dans une variable:
+    f = lambda x: x*x
+    
+On l'appelle comme ceci:
+    f(5) #ça va retourner 25
+
+Un module porte le nom du fichier. A l'intérieur il encapsule des variables et des fonctions.    
+Quand on veut utiliser un module en particulier on doit l'importer avec le mot-clé import, par ex:
+    import math
+    
+Pour appeler une fonction du module il faut tapper le nom du module suivi d'un point . puis du nom
+de la fonction, comme ceci:
+    math.sqrt(16)
+    
+Si on veut connaitre la liste des fonction à l'intérieur du module, on utilise dans ce cas la 
+fonction help et on donne le nom du module entre guillemets:
+    help("math")
+    
+Python contient plusieurs modules built-in, comme par ex random.
+Avec le module random on peut demander un nombre aléatoire entre 0 et 5:
+    randrange(6)
+
+Ou un nombre aléatoire compris entre 10 et 19:
+    randrange(10, 20)
+    
+Dans certains cas on peut changer le nom de l'espace de nom dans lequel est stocké le module importé:
+    import math as mathematiques
+    
+Désormais on utilisera mathematiques.
+Si on veut utiliser une fonction particulière du module, on va la spécifier comme ceci:
+    from math import fabs
+
+On peut importer toutes les variables et les fonctions en tappant *:
+    from math import *
+    
+On l'utilise sans le prefix math, jute fabs(2).
+Attention avec cette méthode car si par hasard il existe dans deux modules différents
+deux fonctions portant le même nom l'interpréteur ne conservera que la dernière fonction appelée.
+
+Afin d'inclure des packages personnels, on peut les mettre dans le répertoire de python.
+Pour ceci, utilisez la commande suivante afin de connaître le répertoire des packages:
+python -m site --user-site
+
+Les fichiers sous Python se terminent par l'extension .py
+Sous Linux on doit spécifier le chemein du Python comme ceci:
+    #!/usr/bin/env python3
+
+Il est nécessaire de préciser à Python l'encodage des accents comme ceci:
+    # -*-coding:Latin-1 -*
+    
+Si on veut tester un module mais ne pas afficher les résultats de test lors de l'impotation, alors
+on definit le main comme ceci:
+    if __name__ == "__main__":
+        test_code
+        
+De cette façon tout repose en fait sur la variable __name__ qui existe dès le lancement de 
+l'interpréteur. Si on lance le fichier avec Python elle vaut __main__ du coup le test_code s'éxécute.
+En revanche si on importe le module, la variable __name__ ne vaut pas main donc le test_code
+ne s'exécutera pas.
+
+Les packages sont des répertoires. Dedans peuvent se trouver d'autres répertoires (d'autres packages)
+ou des fichiers (des modules).
+Si on veut créer nos propres packages, il faut créer un répertoire portant le nom du package.
+Dedans, on crée ensuite un fichier __init__.py pour que Python reconnaisse ce répertoire comme un package.
+Ce fichier peut être vide ou on peut très bien écrire du code qui est exécuté quand on importe notre package.
+Dans ce répertoire on peut:
+    - mettre nos modules, i.e. les fichiers .py
+    - créer des sous-packages, en créant un répertoire dans notre package et un fichier __init__.py
+    
+Forme minimale du bloc try:
+    try:
+        commande
+    except:
+        commande
+    
+Ou sinon on peut préciser un type d'exceptions après except:
+    try:
+        commande
+    except type_exception as exception_retournee
+        commande
+        
+On peut terminer avec le mot-clé else:
+    try:
+        commande
+    except NameError:
+        commande
+    excpet TypeError:
+        commande
+    else:
+        commande
+        
+Ou si on veut toujours exécuter du code, on fait appel à finally:
+    try:
+        commande
+    except type_instruction
+        commande
+    finally:
+        execute
+
+Il existe le mot-clé pass si on ne souhaite rien faire en cas d'erreur:
+    try:
+        commande
+    except type_instruction
+        pass
+        
+On utilise en général les assertions dans les blocs try...except:
+    assert test
+    
+Si le test renvoie True, l'exécution continue normalement, sinon une exception
+AssertionError est levée.
+
+On peut lever une exception de la façon suivante:
+    raise type_exception("message")
+    
+Par ex:
+    try:
+        commande
+        raise MyException("hello")
+    except MyException
+        commande
+ 
+------------------------------------------------------------------------       
+2. POO utilisateur
+------------------------------------------------------------------------
+
+On appelle une méthode d'un objet avec la syntaxe suivante: 
+objet.methode().
+C'est dans une classe qu'on définit les méthodes propres à l'objet.
+
+************
+1. STRINGS
+************
+Les chaînes de carctères constituent la base du Python.
+Ce sont des chaînes littérales et on peut les définir entre guillemets ou entre apostrophes.
+Très important: on ne peut pas modifier une chaîne.
+Quelques exemples sur les strings:
+    - help("str") #afficher l'aide sur la classe str
+    - type(mystr) #affiche le type 'str'
+Quelques méthodes importantes sur les listes:
+    * On la créee de la façon suivante:
+        - chaine = str() #crée une chaine vide
+        - chaine = str("toto") #on passe par le contructeur
+        - chaine = " toto " puis :
+        * chaine.upper() #convertir en majuscules
+        * chaine.capitalize() #la 1ère lettre en majuscule
+        * chaine.strip() #retirer les espaces au début et à la fin
+        * chaine.upper().center() #convertir en majuscules et centrer
+        * mystr = chaine.replace("str_old", "str_new") #remplace une sous-chaîne par une autre sous-chaîne et retourne une nouvelle chaîne
+        * mylist = chaine.split("separator") #spliter une chaîne en sous-chaînes en fonction du séparateur (le résultat est une liste)
+    - name = "toto" et age = 20 puis:
+        chaine = "Je suis {0} et j'ai {1} ans.".format(name, age)
+        Si on fait un print on va voir: Je suis toto et j'ai 20 ans.
+        Ou sinon, en employant le format dans le bon ordre:
+        chaine = "Je suis {} et j'ai {} ans.".format(name, age)    
+        Ou encore une autre façon de fomater:
+        chaine = "Je suis {name} et j'ai {age} ans.".format(name="toto", age=20) 
+    - Pour concaténer : age = 21 puis:
+        chane = "J'ai " + str(age) + " ans." #on fait appel a str() pour convertir un entier en string
+    - chaine[i] #pour parcourir une chaine par indice
+        i = 0
+        while i < len(chaine) #obtenir la longueur
+            print(chaine[i])
+            i+=1
+    - Utiliser la sélection:
+        * chaine[0:2] #sélectionner les deux 1ères lettres (indice 2 non inclus)
+        * chaine[2:len(chaine)] #sélectionner la chaine sauf les deux 1ères lettres
+        * chaine[:2] #sélectionner à partir du début et jusqu'à la 3ème lettre non comprise
+        * chaine[2:] #sélectionner à partir de la 3ème lettre (comprise)et jusqu'à la fin
+        * mot = "lac" puis mot = "b" + mot[1:] donnera bac
+        * chaine[-5:-2] #sélectionner la chaine en partant de la fin (depuis l'indice -1), entre l'indice -3 (-2 non inclus) et jusqu'à l'indice -5 (-5 inclus)
+
+On utilise la méthode de chaine join pour fusionner la liste qui contient des strings (important) en une seule chaine:
+    machaine = " ".join(elt for elt in maliste) #l'espace ici va être inséré entre chaque élément de la liste (on peut mettre une virgule , à la place...)
+    
+Par contre, si la liste ne contient pas des strings (ou au moins un élémnet n'est pas un string) alors il faut la convertir:
+    - machaine = " ".join(str(elt) for elt in maliste)
+    - machaine = " ".join(repr(elt) for elt in maliste) #repre ajoute des apostrophes sur les strings
+
+Si on fait le join de la liste on obtient comme résultat la liste avec les crochets, ensuite il faut la parser...
+    - machaine = " ".join(maliste)
+    - machaine = " ".join(str(maliste)) #au moins un élément dans la liste n'est pas un string, donc on la convertit
+
+On peut parcourir chaines à l'envers en mettant le signe - au niveau de l'indice
+Le dernier élément correspond à l'indice -1 et le 1er élément correspond à l'indice -(len(object) + 1)
+Les mots-clés in ou not in vérifient si une sous-chaîne on un caractère est present dans une chaîne.
+
+************
+2. LISTS
+************ 
+Une liste est une collection d'éléments, ordonnés et modifiables. 
+Les éléments duppliqués sont autorisés.   
+Les listes sont des objets qui peuvent en contenir d'autres.
+Contrairement à la classe str, la classe list permet de remplacer un élément par un autre: 
+on dit que les listes sont des types mutables.
+Très important: les méthodes des listes ne renvoient rien mais modifient l'objet d'origine.
+Quelques exemples sur les listes:
+    - help("list") #afficher l'aide sur la classe list
+    - type(mylist) #affiche le type 'list'
+Quelques méthodes importantes sur les listes:
+    * On la créee de la façon suivante:
+      - maliste = list()
+      - maliste = list(("apple", "banana", "cherry")) #on passe par le contructeur, à noter qu'il y a 2 paranthèses
+      - maliste = []
+      - maliste = [1, 3.5, "chaine", []]
+    * maliste.append(56) #ajouter un élément à la fin d'une liste
+    * maliste.insert(2, 'c') #on insère 'c' à l'indice 2
+    * maliste.pop() #supprimer l'élément de la liste à l'indice spécifié, ou si pas d'indice fourni alors supprimer le dernier élément
+    * maliste.clear() #supprimer tous les éléments dans la liste
+    * maliste.extend(malistenew) #on insère malistenew à la fin de maliste
+    * maliste += malistenew : identique à extend
+    * maliste = list1 + list2 #fusionner 2 listes pour en créer une nouvelle
+    * del maliste[i] #supprimer l'élément de la liste à l'indice i
+    * maliste.remove(56) #supprimer l'élément lui-même, ici le 56, cette méthode
+                         #ne retire que le 1ère occurrence de la valeur trouvée dans la liste
+    * maliste[-1] #l'indice -1 veut dire le dernier élément de la liste, on peut ainsi remonter à -2, -3, ...
+    * maliste[2:5] #pour obtenir les éléments entre l'indice 2 et 4 (5 non inclus)
+    * pour le reste des intervalles, c'est la même chose que les strings
+    * pour copier une liste:
+      - mylist = list(thislist)
+      - mylist = thislist.copy()
+      - c'est une erreur de faire: mylist = thislist car mylist sera une référence vers thislist et du coup si thislist change alors mylist changera aussi!
+    * maliste[i] #pour parcourir une liste par indice
+        i = 0
+        while i < len(maliste): #obtenir la longueur
+            print(maliste[i])
+            i+=1
+    #ou une autre façon plus esthétique:
+        for elt in maliste:
+            print(elt)
+    #ou encore en utilisant la methode enumerate:
+        for i, elt in enumerate(maliste):
+            print("indice {}, élément {}".format(i, elt))
+
+La méthode enumerate renvoie un tuple (indice, valeur).            
+Les list comprehensions sont un moyen de filtrer ou modifier une liste très simplement.
+La méthode sort d'une list permet de trier la list.
+Il existe également la fonction sorted qui prend en entrée une list et retourne une list triée.
+On peut convertir une chaine en liste grâce à la méthode de chaine split :
+    chaine.split(" ") #spliter à chauqe espace trouvé dans la chaine   
+On peut convertir un tuple en list de la façon suivante:
+    mylist = list(mytuple)
+    
+On peut parcourir les listes à l'envers en mettant le signe - au niveau de l'indice
+Le dernier élément correspond à l'indice -1 et le 1er élément correspond à l'indice -(len(object) + 1)
+Les mots-clés in ou not in vérifient si un élément est present dans une liste.
+    
+************
+3. TUPLES
+************ 
+Les tuples sont une collection ordonnée et non modifiable. 
+Ils sont donc assez semblables aux listes sauf qu'on ne peut pas modifier un tuple après qu'il ait créé. 
+Il est impossible d'en ajouter ou d'en retirer des éléments du tuple par la suite: ce sont des listes immutables.
+Voici les différentes façons de déclarer des tuples:
+    * tuple_vide = ()
+    * tuple_non_vide = (1,) #mettre une virgule car Python supprimera la parenthèse et on aura une variable string au lieu d'un tuple!
+    * tuple_non_vide = (1,3,5)
+    * thistuple = tuple(("apple", "banana", "cherry")) #on passe par le contructeur, à noter qu'il y a 2 paranthèses
+    
+Pour les intervalles de sélection, c'est la même chose que les listes...
+Pour les parcourir un tuple avec une boucle for, c'est la même chose que les listes...
+On obtient l'élément n du touple de la même façon que les listes: thistuple[1]
+
+Les fonctions qui renvoient plusieurs valeurs en Python, renvoient en vérité des tuples:
+    a,b = decomposer(20, 3)
+    
+On peut convertir une liste en tuple de la façon suivante:
+    mytuple = tuple(mylist)
+    
+On ne peut pas modifier, ni supprimer un élément dans un tuple mais par contre on peut effacer complètement un tuple:
+    thistuple = ("apple", "banana", "cherry")
+    del thistuple
+    
+On peut fusionner 2 tuples en 1 seul:
+        tuple3 = tuple1 + tuple2
+ 
+Quelques exemples sur les tuples:
+    - help("tuple") #afficher l'aide sur la classe tuple
+    - type(mytuple) #affiche le type 'tuple'
+Quelques méthodes importantes sur les tuples:
+    * mytuple.count() : retourne les occurrences d'un élément spécifiée dans le tuple
+    * mytuple.index(): retourne l'index de l'élément trouvé dans le tuple (si plusieurs éléments avec le même nom alors ça retourne le 1er trouvé)
+       
+Si on veut déclarer une fonction qui prends en paramètre des variables variadiques, on met un * devant:
+    def fonction(*param)
+Le fait de préciser * devant le nom du paramètre fait que Python va placer tous les paramètres de la fonction dans un tuple.
+De même que les autres langages, les paramètres variadiques, peuvent être à la fin:
+    def fonction(nom, age, *details)
+On utilise * dans 2 cas:
+    - dans une définition de fonction pour dire que le paramètres lors de l'appel seront capturés dans la variable
+    - dans un appel de fonction pour dire que la variable sera décomposée en plusieurs paramètres envoyés à la fonction
+C'est une astuce importante: si on reçoit des paramètres variadiques cela veut dire que ces paramètres en question sont sous la forme d'un tuple. 
+Il vaut mieux le convertir en list afin de les modifier, puis de convertir à son tour la list en une str. 
+Par la suite il est plus facile de faire le join sur une str et de concaténer si besoin d'autres str.
+
+On peut parcourir les tuples à l'envers en mettant le signe - au niveau de l'indice
+Le dernier élément correspond à l'indice -1 et le 1er élément correspond à l'indice -(len(object) + 1)
+Les mots-clés in ou not in vérifient si un élément est present dans un tuple.
+
+****************
+4. DICTIONARIES
+****************
+On utilise souvent des dictionnaires qui sont des conteneurs puissants.
+Pour accéder aux objets contenus dans le dictionnaire on n'utilise pas des indices mais des clés.
+Si la clé n'existe pas elle est ajoutée, sinon l'ancienne valeur à l'emplacement indiqué est remplacé  par la nouvelle.
+On crée un dictionnaire come ceci:
+    - mydict = dict()
+    - mydict = {}
+    - mydict = {"pommes":3, "poires":6}
+    - thisdict = dict(brand="Ford", model="Mustang", year=1964) #on passe par le contructeur, à noter que les clés ne sont pas des strings et on utilise = au lieu de :
+    - #les clés sont des tuples:
+        mydict['a', 1] = tour
+        mydict['b', 2] = pion
+
+Quelques exemples sur les dict:
+    - help("dict") #afficher l'aide sur la classe dict
+    - type(mydict) #affiche le type 'dict'
+Quelques méthodes importantes sur les dictionnaires:
+     * x = thisdict.get("model") : retourne la valeur correspondant à la clé "model" (ça retourne None si la clé n'existe pas)
+     * mydict.popitem() : supprime le dernier élément dans le dictionnaire
+     * mydict.clear() : supprime tous les éléments dans le dictionnaire
+     * mydict = thisdict.copy() : copie le dictionnaire
+     * mydict = dict(thisdict) : autre façon de copier le dictionnaire
+        
+Par contre, si on fait:
+    mydict = {"nom", "age"}
+Dans ce cas on n'a pas créé un dictionnaire mais un set.
+
+Pour supprimer une clé dans le dictionnaire on a 2 façons de le faire:
+    - del mydict["cle"]
+    - mydict.pop("cle")
+    
+La méthode pop renvoie la valuer qui a été supprimée en même temps que la clé.
+On se sert parfois des dictionnaires pour stocker des fonctions:
+    - def myfct1()
+    - def myfct2()
+    - mydict = {}
+    - mydict["myfct1"] = myfct1 #sans les parenthèses
+    - mydict["myfct2"] = myfct2 #sans les parenthèses
+    - mydict["myfct1"]() #appel de la fonction
+    
+Parcours des clés:
+    - for cle in mydict
+         print(cle)
+        
+    - for cle in mydict.keys()
+         print(cle)
+         
+Parcours des valeurs:
+    for val in mydict.values()
+        print(val)
+        
+Parcours des clés et valeurs simultanémént:
+    for cle, val in mydict.items():
+        print("cle = {}, val = {}".format(cle, val))
+        
+Très important, le dictionnaire trie les clés au fur et à mesure qu'on les crée.
+Pour capturer tous les paramètres nommés non précisés dans un dictionnaire, il faut mettre deux étoiles ** avant le nom du paramètre:
+    def myfct(**dictparam)
+On appelle ensuite la fonction comme ceci:
+    - myfct(**mydict)
+    - myfct(first ='Geeks', mid ='for', last='Geeks')
+        
+Ainsi, pour avoir une fonction qui accepte n'importe quel type de paramètres, nommés
+ou non, dans n'importe quel ordre, dans n'importe quelle quantité, il faut la déclarer de cette manière:
+    def myfct(*tupleparam, **dictparam)
+On appelle ensuite la fonction comme ceci:
+    - myfct(*mytuple, **mydict)
+    - myfct("hello", 13, name="Bob", country="USA")
+    
+Les mots-clés in ou not in vérifient si un élément (clé) est present dans un dictionnaire.
+    
+************
+5. SETS
+************  
+Un set est très semblable aux listes sauf qu'il ne peut contenir deux objets identiques (important).
+Contrairement aux listes, le set est désordonné, non indexé et non modifiable. 
+On crée un set come ceci:
+    - myset = set()
+    - myset = set(("apple", "banana", "cherry")) #on passe par le contructeur, à noter qu'il y a 2 paranthèses
+    - myset = {"apple", "banana", "cherry"}
+
+Quelques exemples sur les set:
+    - help("set") #afficher l'aide sur la classe set
+    - type(myset) #affiche le type 'set'
+Quelques méthodes importantes sur les set:
+    * del myset : effacer complètement un set    
+    * set3 = set1.union(set2) : retourne un nouveau set avec les éléments des set1 et set2 (désordonnés)
+    * set1.update(set2) : les éléments de set2 sont insérés dans set1
+    
+Comme le set ne possède pas d'indices, on peut accéder aux éléments avec une boucle for :
+    for x in myset:
+      print(x)
+
+Comme on ne peut pas modifier un set, on peut en revanche lui ajouter de nouveaux éléments (un par un ou plusieurs):
+    - myset.add("orange")     
+    - myset.update(["kiwi", "mango", "grapes"])
+    
+Pour enlever un élément dans le set on utilise:
+    - myset.remove("banana") : si l'élément n'existe pas, remove va lever une exception
+    - myset.discard("banana") : si l'élément n'existe pas, discard ne va pas lever une exception
+    - x = myset.pop() : enlève le dernier élément, vu que c'est désordonné il vaut mieux lire quel élément à été enlevé
+    - myset.clear() : supprime tous les éléments dans le set
+
+Les mots-clés in ou not in vérifient si un élément est present dans une set.
+           
+************
+6. FILES
+************     
+Ouverture/lecture/fermeture d'un fichier:
+    - myfile = open("file.txt", "r")
+    - content = myfile.read()
+    - myfile.close()
+    
+Ouverture/écriture/fermeture d'un fichier:
+    - myfile = open("file.txt", "w") #or open with append "a" if we don't want to wipe the file with "w"
+    - myfile.write("test")
+    - myfile.close()
+    
+Si on rencontre des erreurs lors de l'ouverture, on utilise dans ce cas le mot-clé with:
+    with  open("file.txt", "r") as myfile
+        text = myfile.read()
+    
+    with  open("file.txt", "r") as myfile
+        for line in myfile: #lire ligne par ligne
+            fields = line.split() #liste avec chaque champs dans la ligne
+            #traitement...
+        
+Il est inutile de fermer le fichier à la fin du bloc with car Python va le faire tout seul, qu'une
+exception soit levée ou non.
+Grâce au module pickle on peut enregistrer n'importe quel objet et le récuperer par la suite, au
+prochain lancement du programme apr ex.
+On va ensuite utiliser 2 classes incluses dans ce module: Pickler et Unpickler:
+    import pickle
+    with  open("data", "wb") as myfile #ouverture binaire en écriture
+        mypickler = pickle.Pickler(myfile)
+        mypickler.dump(myobject) #enregistrement de myobject
+        
+Voici comment on récupère myobject:
+    import pickle
+    with  open("data", "rb") as myfile #ouverture binaire en lecture
+        myunpickler = pickle.Unpickler(myfile)
+        myobject = myunpickler.load() #lecture de myobject
+    
+------------------------------------------------------------------------       
+3. POO développeur
+------------------------------------------------------------------------
+
+Comme dans d'autres languages de POO, on définit la classe contenant des
+atributs et des méthodes come ceci:
+    class MyClass:
+        def __init__(self): #constructeur
+            self.nom = "toto"
+            self.age = "26"
+
+En Python tous les contructeurs s'appellent __init__.
+Les attributs à l'intérieur du constructeur utilsant le paramètre self.
+On peut modifier un attribut d'un objet comme ceci:
+    objet.attribut = val
+    
+On peut surcharger le constructeur:
+    class MyClass:
+        def __init__(self, nom, age): #constructeur
+            self.nom = nom
+            self.age = age
+
+On peut créer des attributs dans le corps de la classe:
+    class MyClass:
+        cnt = 0
+        def __init__(self, nom, age): #constructeur
+            self.nom = nom
+            self.age = age
+            MyClass.cnt += 1
+
+C'est l'équivalent de l'attribut static en C++.
+On peut mettre d'autres méthodes:
+    class MyClass:
+        cnt = 0
+        def __init__(self, nom, age): #constructeur
+            self.nom = nom
+            self.age = age
+            MyClass.cnt += 1
+        
+        def present(self, addr):
+            print("nom = {}, age = {}, address = {}".format(self.nom, self.age, addr))
+            
+On peut définir des méthodes de classe avec le mot-clé cls:
+    class MyClass:
+        cnt = 0
+        def __init__(self, nom, age): #constructeur
+            self.nom = nom
+            self.age = age
+        
+        def present(self, addr):
+            print("nom = {}, age = {}, address = {}".format(self.nom, self.age, addr))
+            
+        def how(cls)
+            cls.cnt += 1
+        how = classmethod(how)
+        
+Pour que Python reconnaisse une méthode de classe, il faut appeler la fonction classmethod.
+On peut également définir des méthodes statiques qui sont assez proches des méthodes de classe
+sauf qu'elles ne prennent aucun paramètre:
+    class MyClass:
+        cnt = 0
+        def __init__(self, nom, age): #constructeur
+            self.nom = nom
+            self.age = age
+        
+        def present(self, addr):
+            print("nom = {}, age = {}, address = {}".format(self.nom, self.age, addr))
+            
+        def say()
+            print("hello")
+        say = staticmethod(say)
+        
+Introspection:
+    - dir(myobject) #fonction qui renvoie la liste des attributs et méthodes de l'objet
+    - myobject.__dict__ #renvoie un dictionnaire contenant les attributs et les valeurs
+    
+On peut modifier la valeur d'un attribut en faisant:
+    myobject.__dict__["attr"] = val
+    
+En Python il n'y a pas d'attribut privé, tout est public.
+Pour utiliser les attributs privés on emploie la convention suivante:
+    - on prefixe l'attribut d'un _ dans le constructeur, par ex: _myprivattr
+    - od definit les méthodes _get_myprivattr/_set_myprivattr
+    - dans le corps de la classe on otilise la fonction property:
+        myprivattr = property(_get_myprivattr, _set_myprivattr)
+    
+Le destructeur en Python s'appelle __del__, voci un ex de son implémentation:
+    class MyClass:
+        cnt = 0
+        def __init__(self, nom, age): #constructeur
+            self.nom = nom
+            self.age = age
+        
+        def present(self, addr):
+            print("nom = {}, age = {}, address = {}".format(self.nom, self.age, addr))
+            
+        def __del__(self):
+            print("good bye")
+    
+On n'est pas obligé de mettre un destructeur car Python en crée un par défaut.
+Si on veut modifier le comportement de l'affichage quand on tappe juste le nom de l'objet,
+on peut faire appel à la méthode __repr__:
+    def __repr__(self):
+        return "...{}...{}".format(self.x, self.y)
+        
+Ou sinon on appelle la fonction repr(myobject)
+Il existe la méthode __str__ spécialement utilisée pour afficher l'objet avec print:
+    def __str__(self):
+        return "...{}...{}".format(self.x, self.y)
+        
+La méthode spéciale __getattr__ permet de définir une méthode d'accès à nos aatributs:
+    def __getattr__(self, nom):
+        print("pas d'attribut {}".format(nom))
+        
+Quand on écrit objet.attribut = val, la méthode spéciale __setattr__ sera appelée ainsi:
+    objet.__setattr__("attribut", val)
+
+Si par ex on veut enregistrer l'objet, on peut redéfinir cette méthode:
+    def __setattr__(self, attr, val)
+        object.__set_attr__(self, attr, val)
+        self.enregistrer()
+
+Il faut savoir que toutes les classes que nous créons sont héritées de la classe object.
+La méthode spéciale __delattr__ est appelée quand on souhaite supprimer un attribut de l'objet.
+Il y a les fonctions qui existent également:
+    - getattr(objet, "attr")
+    - setattr(objet, "attr", val)
+    - delattr(objet, "attr")
+    - hasattr(objet, "attr")
+    
+Les méthodes spéciales des conteneurs:
+    - __getitem__
+    - __setitem__
+    - __delitem__
+    - __contains__
+    - __len__
+    
+Les méthodes spéciales mathématiques:
+    - __add__
+    - __sub__
+    - __pow__
+    - ...
+    
+Attention, écrire obj1 + obj2 n'est pas pareil que d'écrire obj2 + obj1.
+Le sens est important.
+Si on inverse le sens, on doit redéfinir le __add__ par ex en le préfixant de r:
+    def __radd__(self, obj)
+        return self + obj #ça va appeler __add__
+        
+La méthode __getstate__ est appelée avant l'enregistrement avec pickle.
+Pour le désérialiser, la méthode __setstate__ est appelée.
+Si on veut, on peut les redéfinir ces méthodes pour renvoyer autre chose que des dictionnaires!
+
+Pour faire de l'héritage on emploie la syntaxe suivante:
+    class MyClass(BaseClass):
+        
+Python définit deux fonction bien pratiques:
+    - issubclass
+    - isinstance
+
+Pour l'héritage multiple, on utilise la syntaxe suivante:
+    class MyClass(BaseClass1, BaseClass2,...,BaseClassN)
+    
+Dans ce cas la recherche des méthodes se fait dans l'ordre de la définition de la classe.
+La classe mère de toutes les exceptions s'appelle BaseException
+Les exceptions d'erreurs héritent de Exception.
+
+Quand Python tombe sur une ligne for elt in mylist
+alors il va appeler l'itérateur de mylist.
+L'itérateur est appelé dans la méthode spéciale __iter__ de l'objet.
+A chaque tour de boucle, Python appelle la méthode spéciale __next__ de l'itérateur
+qui renvoie l'élément suivant.
+Les générateurs sont avant tout un moyen plus pratique de créer et manipuler des itérateurs.
+On les crée avec le mot-clé yield :
+    def mygen()
+        yield 1
+        yield 2
+
+Les co-routines sont un moyen d'altérer le parcours pendat le parcours:
+    - méthode close
+    - méthode send
+
+Les décorateurs sont des fonctions de Python dont le rôle est de modifier le
+comportement par défaut d'autres fonctions ou classes.
+Dans ce cas, une fonction modifiée par un décorateur ne s'exécutera pas elle-même mais
+appellera le décorateur.
+Il prennent e paramètre une fonction et renvoient une fonction. Voci la syntaxe:
+    @docorator
+    def fct
+    
+Important à savoir, le décorateur s'exécute au moment de la définition de la fonction et 
+non lors de l'appel.
+
+Voici un ex:
+    def docorator(fct):
+        
+        def fct_modif()
+            #exec
+            #...
+            return fct;
+            
+        return fct_modif
+
+    @decorator
+    def my_fct()
+        #exec
+        #...
+        
+Decoreteur défini avec des paramètres:
+    def fct_base(param):
+        
+        def docorator(fct)
+        
+            def fct_modif()
+                #exec
+                #...
+                ret = fct()
+                #...
+                return ret;
+                
+            return fct_modif
+            
+        return decorator
+        
+    @fct_base(4)
+    def my_fct()
+        #exec
+        #...
+
+On peut chaîner nos décorateurs:
+    @decorator1
+    @decorator2
+    def my_fct()
+        #exec
+        #...
+
+Les métaclasses sont pratique pour créer des classes dynamiquement.
+On utilise pour cela le type:
+    MyClass = type("MyClass", (), {})
+    
+------------------------------------------------------------------------       
+4. La bibliothèque standard
+------------------------------------------------------------------------
+
+Le module re traite les expression régulières.
+On fait appel à la fontion search de ce module.
+Pour remplacer une expression on utilise la fonction sub.
+
+Le module time sert à manipuler le temps.
+On peut mesurer des temps en secondes:
+    -start = time.time()
+    -stop = time.time()
+    -delta = stop - start #en secondes
+
+Afficher l'heure actuelle: time.localtime()
+Faire une pause: time.sleep(3.5) #3.5 secondes de pause
+Formater le temps: time.strftime("%A %d %B %Y %H:%M:%S")
+
+Pour modifier le flux standard:
+    myfile = open("stdout_txt.txt", "w")
+    sys.stdout = myfile
+    #...
+    sys.stdout = sys.__stdout__
+    
+Pour connaître l'emplacement du répertoire on fait appel à os.getcwd()
+Pour intercepter un signal, on crée une fonction laquelle on la connecte avec le signal en question:
+    import signal
+    def myfct(sig, frame)
+        #exec
+        #...
+        sys.exit(0)
+        
+    signal.signal(signal.SIGINT, myfct)
+    
+Interpréter les arguments de la ligne de commande:
+    getopt.getopt(sys.argv[1:], "n:", [number="])
+    - la liste des arguments: [1:] #on ne prend pas le 1er paramètre qui est le nom
+    - option courte suivie de paramètre d'où le :
+    - option longue correspondante avec =
+    
+Pour exécuter de commandes bash:
+    import os
+    os.system("ls")
+    #ou sinon
+    cmd = os.popen("ls")
+    cmd.read()
+    
+Récupérer un mod de passe:
+    from getpass import getpass
+    mdp = getpass()
+    
+Pour gérer le réseau client/serveur on fait appel au module socket.
+Pour les interfaces graphiques on fait appel à Tkinter.
+    
+------------------------------------------------------------------------       
+5. Les bonnes pratiques
+------------------------------------------------------------------------
+Ecrire les programes dans des fichiers .py
+Dans vos modules .py rajoutez systématiquement le test "__main__".
+On peut distribuer des programas standalone grâce à l'outil cx_Freeze.
+Identez le code: 4 espaces par niveau d'identation.
+Il ne faut pas mettre des espaces autour du signe = si c'est dans le contexte
+d'un paramètre ayant une valeur par défaut (définition d'une fonction)
+ou d'un appel de paramètre (appel de fonction).
+Commentez les programmes par des docstring.
+Django est une framework permettant de développer un site web dynamique en Python.
+Il existe aussi CherryPy pour les sites web.
+Pour le réseau on a aussi Twisted.
+Pour ssh on a la bibliothèque Paramiko.
+Pour les interfaces graphiques on peut utiliser aussi PyQT ou PyGTK ou wxPython.
+
