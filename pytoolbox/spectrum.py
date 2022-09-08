@@ -23,15 +23,28 @@ class Spectrum:
         t_unit  = "Time ({})".format(t_format.get("unit"))
         
         return (t_axis, t_unit)
+        
+    def build_axis_samples(self, N):
+        """
+        Build sample axis
+        """
+        
+        samp_axis = numpy.linspace(0, N-1, N)
+        samp_unit  = "Samples"
+        
+        return (samp_axis, samp_unit)
     
-    def build_axis_freq(self, Fs, N, f_format):
+    def build_axis_freq(self, Fs, N, f_format, freq_shift=True):
         """
         Build frequency axis
         """
         resol = Fs/N #Hz
         
         #f_axis = [] #numpy.fft.fftfreq(N, 1.0)
-        f_axis = numpy.linspace(-N/2, N/2-1, N)
+        if (freq_shift):
+            f_axis = numpy.linspace(-N/2, N/2-1, N)
+        else:
+            _axis = numpy.linspace(0, N-1, N)
         f_axis = (resol*f_axis)/f_format.get("format")
         f_unit  = "Frequency ({})".format(f_format.get("unit"))
         
