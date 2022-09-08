@@ -44,7 +44,7 @@ class Spectrum:
         if (freq_shift):
             f_axis = numpy.linspace(-N/2, N/2-1, N)
         else:
-            _axis = numpy.linspace(0, N-1, N)
+            f_axis = numpy.linspace(0, N-1, N)
         f_axis = (resol*f_axis)/f_format.get("format")
         f_unit  = "Frequency ({})".format(f_format.get("unit"))
         
