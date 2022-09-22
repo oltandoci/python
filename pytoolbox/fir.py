@@ -66,7 +66,7 @@ class Fir:
         
         return (h, n_samp)
         
-    def save_bin_coeff(self, coeff_array, n_samp, quant, n_bytes, whole=True):
+    def save_bin_coeff(self, file_prefix, coeff_array, n_samp, quant, n_bytes, whole=True):
         """
         Save FIR coefficients into binary file
         """
@@ -85,6 +85,7 @@ class Fir:
             
         x = bytearray(N*n_bytes) #integers of xx Bytes
         
+        #LE format
         for k in range(N):
             val = int(coeff_array[k]*numpy.power(2, quant))
             if n_bytes == 1:
@@ -106,8 +107,19 @@ class Fir:
                 x[4*k+3] = val_array[3]
             else:
                 raise Exception(f'Coefficient size in bytes {n_bytes} is not supported, must be 1, 2, 3 or 4 (i.e. 8, 16, 24 or 32 bits)')
+            
+        info = "_le_"
+        if (b_odd):
+            info = info + "odd"
+        else:
+            info = info + "even"
+            
+        if (whole):
+            info = info + "_" + "whole"
+        else:
+            info = info + "_" + "half"
 
-        with open("fir_" + str(N) + "_B=" + str(n_bytes) + "_q=" + str(quant) + ".bin", "wb") as binfile:
+        with open(file_prefix + "_samp-" + str(N) + "_B-" + str(n_bytes) + "_q-" + str(quant) + info + ".bin", "wb") as binfile:
             binfile.write(x)
             
             

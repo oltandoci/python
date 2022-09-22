@@ -12,6 +12,8 @@ Useful routines on:
 import os
 import time
 import pickle
+import numpy
+import struct
 
 class Tools:
     """
@@ -156,3 +158,50 @@ class Tools:
             for item in array_val:
                 myfile.write("%d\n" % item)
                 
+    def sinwave_gen(self, payload_size, sample_size, f0, Fs, N, sample_format, multiple, endian, filesuffix=None):
+    
+        if sample_size == 8:
+            B = 1
+        elif sample_size == 16:
+            B = 2
+        elif sample_size == 20: #20bit sample will be extended to 32bits
+            B = 4
+        elif sample_size == 24: #24bit sample will be extended to 32bits
+            B = 4
+        elif sample_size == 32:
+            B = 4
+        else:
+            raise Exception(f'Sample size {sample_size} is not supported, must be 8, 16, 20, 24 or 32 bits')
+            
+        if (endian == 0):
+            endian_type = '<' #LE
+        else:
+            endian_type = '>' #BE
+            
+        for idx in range(multiple):
+            x = bytearray(N*B) #integers of xx Bytes
+            f_ch = (idx+1)*f0 #each channel carrier is a multiple of f0
+            for k in range(N):
+                val = round(((pow(2, payload_size)/2)-1) * numpy.sin(2*numpy.pi*k*(f_ch/Fs)))
+                
+                if sample_size == 8:
+                    val_array = struct.pack('{0}b'.format(endian_type), val)
+                    x[k] = val_array[0]
+                elif sample_size == 16:
+                    val_array = struct.pack('{0}h'.format(endian_type), val)
+                    x[2*k+0] = val_array[0]
+                    x[2*k+1] = val_array[1]
+                else: #4 Bytes sample
+                    val_array = struct.pack('{0}i'.format(endian_type), val)
+                    x[4*k+0] = val_array[0]
+                    x[4*k+1] = val_array[1]
+                    x[4*k+2] = val_array[2]
+                    x[4*k+3] = val_array[3]
+            
+            #Save samples into binary file
+            if (filesuffix):
+                filename = "ref_sine" + "_f0-" + str(f_ch) + "Hz" + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(N/Fs) + "sec" + "_N-" + str(N) + "_B-" + str(B) + filesuffix
+            else:
+                filename = "ref_sine" + "_f0-" + str(f_ch) + "Hz" + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(N/Fs) + "sec" + "_N-" + str(N) + "_B-" + str(B)
+            with open(filename + ".bin", "wb") as binfile:
+                binfile.write(x)
