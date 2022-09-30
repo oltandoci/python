@@ -131,12 +131,11 @@ class Fir:
             
         #transpose matrix for coefficients
         ht = []
-        for n_row in range(interpRatio):
-            for m_col in range(nTaps):
-                ht.append(hMatrix[m_col][n_row])
+        for n_col in range(nTaps):
+            for m_row in range(interpRatio):
+                ht.append(hMatrix[m_row][n_col])
                 
         h = []
-        b_odd = True
         if (centerTap):
             n_samp = interpRatio*nTaps + 1
             if (n_samp % 2) == 0:
@@ -144,21 +143,7 @@ class Fir:
             
             idx = int((interpRatio*nTaps)/2)
             h.extend(ht[:idx])
-            
-            #Normalization cut frequency to Fs, w.r.t \pi
-            w_cut = 2 * numpy.pi * (cutoff / sampFreq / interpRatio)
-            w_hanning = numpy.hanning(n_samp)
-            w_hamming = numpy.hamming(n_samp)
-            w_blackman = numpy.blackman(n_samp)
-            center_idx = int((n_samp - 1) / 2)
-            if type_window == "hann":
-                w_center = w_hanning[center_idx]
-            elif type_window == "hamming":
-                w_center = w_hamming[center_idx]
-            else:
-                w_center = w_blackman[center_idx]
-            
-            val = (w_cut / numpy.pi)*w_center*interpRatio #(ht[idx-1] + ht[idx])/2
+            val = (ht[idx-1] + ht[idx] + ht[idx+1])/3
             h.append(val)
             
             h.extend(ht[idx:])
