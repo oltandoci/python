@@ -128,7 +128,6 @@ class Fir:
                 window = 0.54 - 0.46*numpy.cos(numpy.pi + 2*numpy.pi*relativeTime/nTaps)
                 
             hMatrix.append(numpy.sinc(relativeTime*cutoff/sampFreq)*window)
-            
         #transpose matrix for coefficients
         ht = []
         for n_col in range(nTaps):
@@ -140,7 +139,7 @@ class Fir:
             n_samp = interpRatio*nTaps + 1
             if (n_samp % 2) == 0:
                 raise Exception("interpRatio*nTaps + 1 must be odd")
-            
+            #need to find a better way to compute center tap...
             idx = int((interpRatio*nTaps)/2)
             h.extend(ht[:idx])
             val = (ht[idx-1] + ht[idx] + ht[idx+1])/3
