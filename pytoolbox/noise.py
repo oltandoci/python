@@ -34,7 +34,7 @@ class Noise:
         complex white Gaussian noise
         """
         #std dev
-        sigma = numpy.sqrt(noise_power /2)
+        sigma = numpy.sqrt(noise_power / 2)
         #normal (Gaussian) distributioan
         n_real = sigma*numpy.random.randn(n_samp)
         n_imag = sigma*numpy.random.randn(n_samp)
@@ -53,8 +53,8 @@ class Noise:
             
         #Ps
         s_abs = numpy.absolute(sig_cplx)
-        s_abs_2 = numpy.square(s_abs)
-        Ps = (1 / n_samp) * numpy.sum(s_abs_2)
+        s_abs_2 = numpy.square(s_abs, dtype=numpy.double)
+        Ps = (1 / n_samp) * numpy.sum(s_abs_2, dtype=numpy.double)
         #Pn
         Pn = (Ps / snr_lin) * (sampling_freq / enbw)
         #add noise to the signal

@@ -60,10 +60,12 @@ class Spectrum:
         
         return (t_axis, t_unit, f_axis, f_unit)
         
-    def fft(self, data_in, norm, shift = True):
+    def fft(self, data_in, norm, shift=True, window=False):
         """
         Run FFT
         """
+        if (window):
+            data_in = numpy.multiply(data_in, numpy.hamming(len(data_in)))
         data_out = numpy.fft.fft(data_in) / norm
         if (shift):
             data_out = numpy.fft.fftshift(data_out) 
@@ -75,85 +77,99 @@ class Spectrum:
         Power Spectral Density computing
         """
         data_out = numpy.absolute(data_in)
-        data_out = numpy.power(data_out, 2)
+        data_out = numpy.square(data_out, dtype=numpy.double)
         data_out = 10*numpy.log10(data_out)
         
         return (data_out, "dB (FS)")
         
-    def frequency_analysis(self, data_in):
+    def _check_start_stop_interval(self, idx, min_idx, max_idx, interval_idx):
+        start = int(-interval_idx/2)
+        stop = int(interval_idx/2)
+        
+        if (idx + start < min_idx):
+            start = -idx
+        if (idx + stop > max_idx):
+            stop = max_idx - idx
+            
+        return (start, stop)
+        
+    def frequency_analysis(self, data_in, amp_comp_interval=0, sig_rem_interval=8, spur_rem_interval=8, dc_rem_interval=8, har_rem_interval=8):
         """
         Spectral analyser
         cd: https://www.analog.com/media/en/training-seminars/tutorials/MT-003.pdf
         Add sanity checks on vetor indexes...
         """
         
-        #compute signal
+        #Start power computing (signal squared)
         vect_analyzis = numpy.absolute(data_in)
+        vect_analyzis = numpy.square(vect_analyzis, dtype=numpy.double)
+        vect_analyzis_thd = numpy.absolute(data_in)
+        vect_analyzis_thd = numpy.square(vect_analyzis_thd, dtype=numpy.double)
+        
+        min_idx = 0
+        max_idx = len(vect_analyzis) - 1
+        
+        #compute signal
         sig_idx = numpy.argmax(vect_analyzis)
+        (start, stop) = self._check_start_stop_interval(sig_idx, min_idx, max_idx, amp_comp_interval)
         sig = []
-        for k_sig in range(-2, 2 + 1):
-            sig.append(vect_analyzis[sig_idx+k_sig])
-        sig2 = numpy.power(sig, 2)
-        rms_sig = numpy.sqrt(numpy.mean(sig2))
+        for k in range(start, stop + 1): #(3 samples are enough for amplitude)
+            sig.append(vect_analyzis[sig_idx+k])
+        rms_sig = numpy.sqrt(numpy.mean(sig))
         
         #remove signal
-        vect_analyzis[sig_idx-2] = 0
-        vect_analyzis[sig_idx-1] = 0
-        vect_analyzis[sig_idx] = 0
-        vect_analyzis[sig_idx+1] = 0
-        vect_analyzis[sig_idx+2] = 0
+        (start, stop) = self._check_start_stop_interval(sig_idx, min_idx, max_idx, sig_rem_interval)
+        for k in range(start, stop + 1):
+            vect_analyzis[sig_idx+k] = 0
+            vect_analyzis_thd[sig_idx+k] = 0
         
         #compute spurious
         spur_idx = numpy.argmax(vect_analyzis)
+        (start, stop) = self._check_start_stop_interval(spur_idx, min_idx, max_idx, amp_comp_interval)
         spur = []
-        for k_spur in range(-2, 2 + 1):
-            spur.append(vect_analyzis[spur_idx+k_spur])
-        spur2 = numpy.power(spur, 2)
-        rms_spur = numpy.sqrt(numpy.mean(spur2))
+        for k in range(start, stop + 1): #(3 samples are enough for amplitude)
+            spur.append(vect_analyzis[spur_idx+k])
+        rms_spur = numpy.sqrt(numpy.mean(spur))
         
         #remove DC
-        vect_analyzis[0] = 0
-        vect_analyzis[1] = 0
-        vect_analyzis[2] = 0
+        dc_idx = 0 #we assume that input samples are taken from the 2nd half spectrum after fftshift
+        (start, stop) = self._check_start_stop_interval(dc_idx, min_idx, max_idx, dc_rem_interval)
+        for k in range(start, stop + 1):
+            vect_analyzis[dc_idx+k] = 0
         sfdr = 20*numpy.log10(rms_sig/rms_spur)
         
         #compute noise and THD+N (DC should be removed first)
-        noise_val = 0
-        for elt in (vect_analyzis):
-            elt2 = numpy.power(elt, 2)
-            noise_val += elt2
-        noise_val = numpy.sqrt(noise_val)
-        noise_val /= len(vect_analyzis)
-        thd_n = 20*numpy.log10(rms_sig/noise_val)
+        thd_n_val = numpy.sqrt(numpy.sum(vect_analyzis, dtype=numpy.double))
+        thd_n = 20*numpy.log10(rms_sig/thd_n_val)
+        
+        #compute SNR
+        rms_noise = numpy.sqrt(numpy.mean(vect_analyzis_thd))
+        snr = 20*numpy.log10(rms_sig/rms_noise)
+        n_floor = 20*numpy.log10(rms_noise)
         
         #remove spurious
-        vect_analyzis[spur_idx-2] = 0
-        vect_analyzis[spur_idx-1] = 0
-        vect_analyzis[spur_idx] = 0
-        vect_analyzis[spur_idx+1] = 0
-        vect_analyzis[spur_idx+2] = 0
+        (start, stop) = self._check_start_stop_interval(spur_idx, min_idx, max_idx, spur_rem_interval)
+        for k in range(start, stop + 1):
+            vect_analyzis[spur_idx+k] = 0
         
         #compute the 1st 5 harmonics
-        har_p = []
+        har_tab = []
+        har_idx_res = []
         for k_thd in range(5):
-            har_idx = numpy.argmax(vect_analyzis)
+            har_idx = numpy.argmax(vect_analyzis_thd)
+            har_idx_res.append(har_idx)
             har = []
-            for k_har in range(-2, 2 + 1):
-                har.append(vect_analyzis[har_idx+k_har])
-            har2 = numpy.power(har, 2)
-            har_p.append(numpy.mean(har2))
+            (start, stop) = self._check_start_stop_interval(har_idx, min_idx, max_idx, amp_comp_interval)
+            for k in range(start, stop + 1): #(3 samples are enough for amplitude)
+                har.append(vect_analyzis_thd[har_idx+k])
+            har_tab.append(numpy.mean(har))
             #remove harmonic
-            vect_analyzis[har_idx-2] = 0
-            vect_analyzis[har_idx-1] = 0
-            vect_analyzis[har_idx] = 0
-            vect_analyzis[har_idx+1] = 0
-            vect_analyzis[har_idx+2] = 0
-            
-        thd_val = 0
-        for elt in (har_p):
-            thd_val += elt
-        thd_val = numpy.sqrt(thd_val)
-        thd_val /= len(har_p)
-        thd = 20*numpy.log10(rms_sig/thd_val)
+            (start, stop) = self._check_start_stop_interval(har_idx, min_idx, max_idx, har_rem_interval)
+            for k in range(start, stop + 1):
+                vect_analyzis_thd[har_idx+k] = 0
         
-        return (sfdr, thd, thd_n)
+        thd_val = numpy.sqrt(numpy.sum(har_tab, dtype=numpy.double))
+        thd = 20*numpy.log10(rms_sig/thd_val)
+        thd_100 = ((thd_val/rms_sig)*100)
+        
+        return (sfdr, thd, thd_100, thd_n, snr, n_floor, sig_idx, spur_idx, har_idx_res)
