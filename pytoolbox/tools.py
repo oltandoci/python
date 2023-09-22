@@ -14,6 +14,7 @@ import time
 import pickle
 import numpy
 import struct
+import math
 
 class Tools:
     """
@@ -158,7 +159,7 @@ class Tools:
             for item in array_val:
                 myfile.write("%d\n" % item)
                 
-    def sinwave_gen(self, payload_size, sample_size, f0, Fs, N, sample_format, multiple, endian, filesuffix=None):
+    def sinwave_gen_multiple_chan(self, payload_size, sample_size, f0, Fs, N, multiple, endian, interlaced=True, filesuffix=None):
     
         if sample_size == 8:
             B = 1
@@ -200,8 +201,373 @@ class Tools:
             
             #Save samples into binary file
             if (filesuffix):
-                filename = "ref_sine" + "_f0-" + str(f_ch) + "Hz" + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(N/Fs) + "sec" + "_N-" + str(N) + "_B-" + str(B) + filesuffix
+                filename = "ref_sine" + "_f0-" + str(f_ch) + "Hz" + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-1" + filesuffix
             else:
-                filename = "ref_sine" + "_f0-" + str(f_ch) + "Hz" + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(N/Fs) + "sec" + "_N-" + str(N) + "_B-" + str(B)
+                filename = "ref_sine" + "_f0-" + str(f_ch) + "Hz" + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-1" 
             with open(filename + ".bin", "wb") as binfile:
                 binfile.write(x)
+
+    def _check_format(self, endian, sample_size):
+    
+        if (endian == 0):
+            endian_type = '<' #LE
+        else:
+            endian_type = '>' #BE
+            
+        if sample_size == 8:
+            B = 1
+            fmt = '{0}b'.format(endian_type)
+        elif sample_size == 16:
+            B = 2
+            fmt = '{0}h'.format(endian_type)
+        elif sample_size == 20: #20bit sample will be extended to 32bits
+            B = 4
+            fmt = '{0}i'.format(endian_type)
+        elif sample_size == 24: #24bit sample will be extended to 32bits
+            B = 4
+            fmt = '{0}i'.format(endian_type)
+        elif sample_size == 32:
+            B = 4
+            fmt = '{0}i'.format(endian_type)
+        else:
+            raise Exception(f'Sample size {sample_size} is not supported, must be 8, 16, 20, 24 or 32 bits')
+            
+        return (B, fmt)
+        
+    def _fill_1_ch_8b(self, k, N, fmt, val, x):
+        done = "Progress: %.2f%%" % ((k/N)*100)
+        print(done, end="\r")
+        val_array = struct.pack(fmt, val)
+        x[1*1*k] = val_array[0]
+        
+    def _fill_1_ch_16b(self, k, N, fmt, val, x):
+        done = "Progress: %.2f%%" % ((k/N)*100)
+        print(done, end="\r")
+        val_array = struct.pack(fmt, val)
+        x[1*2*k+0] = val_array[0]
+        x[1*2*k+1] = val_array[1]
+        
+    def _fill_1_ch_32b(self, k, N, fmt, val, x):
+        done = "Progress: %.2f%%" % ((k/N)*100)
+        print(done, end="\r")
+        val_array = struct.pack(fmt, val)
+        x[1*4*k+0] = val_array[0]
+        x[1*4*k+1] = val_array[1]
+        x[1*4*k+2] = val_array[2]
+        x[1*4*k+3] = val_array[3] 
+        
+    def _fill_2_ch_8b(self, k, N, fmt, val_0, val_1, x):
+        done = "Progress: %.2f%%" % ((k/N)*100)
+        print(done, end="\r")
+        val_array_ch0 = struct.pack(fmt, val_0)
+        val_array_ch1 = struct.pack(fmt, val_1)
+        x[2*1*k+0] = val_array_ch0[0]
+        x[2*1*k+1] = val_array_ch1[0]
+        
+    def _fill_2_ch_16b(self, k, N, fmt, val_0, val_1, x):
+        done = "Progress: %.2f%%" % ((k/N)*100)
+        print(done, end="\r")
+        val_array_ch0 = struct.pack(fmt, val_0)
+        val_array_ch1 = struct.pack(fmt, val_1)
+        x[2*2*k+0] = val_array_ch0[0]
+        x[2*2*k+1] = val_array_ch0[1]
+        x[2*2*k+2] = val_array_ch1[0]
+        x[2*2*k+3] = val_array_ch1[1]
+        
+    def _fill_2_ch_32b(self, k, N, fmt, val_0, val_1, x):
+        done = "Progress: %.2f%%" % ((k/N)*100)
+        print(done, end="\r")
+        val_array_ch0 = struct.pack(fmt, val_0)
+        val_array_ch1 = struct.pack(fmt, val_1)
+        x[2*4*k+0] = val_array_ch0[0]
+        x[2*4*k+1] = val_array_ch0[1]
+        x[2*4*k+2] = val_array_ch0[2]
+        x[2*4*k+3] = val_array_ch0[3]
+        x[2*4*k+4] = val_array_ch1[0]
+        x[2*4*k+5] = val_array_ch1[1]
+        x[2*4*k+6] = val_array_ch1[2]
+        x[2*4*k+7] = val_array_ch1[3]
+        
+    def _fill_8_ch_8b(self, k, N, fmt, val_0, val_1, val_2, val_3, val_4, val_5, val_6, val_7, x):
+        done = "Progress: %.2f%%" % ((k/N)*100)
+        print(done, end="\r")
+        val_array_ch0 = struct.pack(fmt, val_0)
+        val_array_ch1 = struct.pack(fmt, val_1)
+        val_array_ch2 = struct.pack(fmt, val_2)
+        val_array_ch3 = struct.pack(fmt, val_3)
+        val_array_ch4 = struct.pack(fmt, val_4)
+        val_array_ch5 = struct.pack(fmt, val_5)
+        val_array_ch6 = struct.pack(fmt, val_6)
+        val_array_ch7 = struct.pack(fmt, val_7)
+        x[8*1*k+0] = val_array_ch0[0]
+        x[8*1*k+1] = val_array_ch1[0]
+        x[8*1*k+2] = val_array_ch2[0]
+        x[8*1*k+3] = val_array_ch3[0]
+        x[8*1*k+4] = val_array_ch4[0]
+        x[8*1*k+5] = val_array_ch5[0]
+        x[8*1*k+6] = val_array_ch6[0]
+        x[8*1*k+7] = val_array_ch7[0]
+
+        
+    def _fill_8_ch_16b(self, k, N, fmt, val_0, val_1, val_2, val_3, val_4, val_5, val_6, val_7, x):
+        done = "Progress: %.2f%%" % ((k/N)*100)
+        print(done, end="\r")
+        val_array_ch0 = struct.pack(fmt, val_0)
+        val_array_ch1 = struct.pack(fmt, val_1)
+        val_array_ch2 = struct.pack(fmt, val_2)
+        val_array_ch3 = struct.pack(fmt, val_3)
+        val_array_ch4 = struct.pack(fmt, val_4)
+        val_array_ch5 = struct.pack(fmt, val_5)
+        val_array_ch6 = struct.pack(fmt, val_6)
+        val_array_ch7 = struct.pack(fmt, val_7)
+        x[8*2*k+0] = val_array_ch0[0]
+        x[8*2*k+1] = val_array_ch0[1]
+        x[8*2*k+2] = val_array_ch1[0]
+        x[8*2*k+3] = val_array_ch1[1]
+        x[8*2*k+4] = val_array_ch2[0]
+        x[8*2*k+5] = val_array_ch2[1]
+        x[8*2*k+6] = val_array_ch3[0]
+        x[8*2*k+7] = val_array_ch3[1]
+        x[8*2*k+8] = val_array_ch4[0]
+        x[8*2*k+9] = val_array_ch4[1]
+        x[8*2*k+10] = val_array_ch5[0]
+        x[8*2*k+11] = val_array_ch5[1]
+        x[8*2*k+12] = val_array_ch6[0]
+        x[8*2*k+13] = val_array_ch6[1]
+        x[8*2*k+14] = val_array_ch7[0]
+        x[8*2*k+15] = val_array_ch7[1]
+
+        
+    def _fill_8_ch_32b(self, k, N, fmt, val_0, val_1, val_2, val_3, val_4, val_5, val_6, val_7, x):
+        done = "Progress: %.2f%%" % ((k/N)*100)
+        print(done, end="\r")
+        val_array_ch0 = struct.pack(fmt, val_0)
+        val_array_ch1 = struct.pack(fmt, val_1)
+        val_array_ch2 = struct.pack(fmt, val_2)
+        val_array_ch3 = struct.pack(fmt, val_3)
+        val_array_ch4 = struct.pack(fmt, val_4)
+        val_array_ch5 = struct.pack(fmt, val_5)
+        val_array_ch6 = struct.pack(fmt, val_6)
+        val_array_ch7 = struct.pack(fmt, val_7)
+        x[8*4*k+0] = val_array_ch0[0]
+        x[8*4*k+1] = val_array_ch0[1]
+        x[8*4*k+2] = val_array_ch0[2]
+        x[8*4*k+3] = val_array_ch0[3]
+        x[8*4*k+4] = val_array_ch1[0]
+        x[8*4*k+5] = val_array_ch1[1]
+        x[8*4*k+6] = val_array_ch1[2]
+        x[8*4*k+7] = val_array_ch1[3]
+        x[8*4*k+8] = val_array_ch2[0]
+        x[8*4*k+9] = val_array_ch2[1]
+        x[8*4*k+10] = val_array_ch2[2]
+        x[8*4*k+11] = val_array_ch2[3]
+        x[8*4*k+12] = val_array_ch3[0]
+        x[8*4*k+13] = val_array_ch3[1]
+        x[8*4*k+14] = val_array_ch3[2]
+        x[8*4*k+15] = val_array_ch3[3]
+        x[8*4*k+16] = val_array_ch4[0]
+        x[8*4*k+17] = val_array_ch4[1]
+        x[8*4*k+18] = val_array_ch4[2]
+        x[8*4*k+19] = val_array_ch4[3]
+        x[8*4*k+20] = val_array_ch5[0]
+        x[8*4*k+21] = val_array_ch5[1]
+        x[8*4*k+22] = val_array_ch5[2]
+        x[8*4*k+23] = val_array_ch5[3]
+        x[8*4*k+24] = val_array_ch6[0]
+        x[8*4*k+25] = val_array_ch6[1]
+        x[8*4*k+26] = val_array_ch6[2]
+        x[8*4*k+27] = val_array_ch6[3]
+        x[8*4*k+28] = val_array_ch7[0]
+        x[8*4*k+29] = val_array_ch7[1]
+        x[8*4*k+30] = val_array_ch7[2]
+        x[8*4*k+31] = val_array_ch7[3]
+
+            
+    def sinwave_gen_interleaced_chan(self, payload_size, sample_size, f0, Fs, N, num_of_chan, endian, filesuffix=None):
+    
+        (B, fmt) = self._check_format(endian, sample_size)
+        A = (pow(2, payload_size)/2)-1
+        x = bytearray(N*B*num_of_chan) #integers of xx Bytes
+        f_ch_list = []
+        for idx in range(num_of_chan):
+            f_ch_list.append((idx+1)*f0) #each channel carrier is a multiple of f0
+            
+        if (num_of_chan == 1):
+            for k in range(N):
+                val = round(A * numpy.sin(2*numpy.pi*k*(f0/Fs)))
+                if sample_size == 8:
+                    self._fill_1_ch_8b(k, N, fmt, val, x)
+                elif sample_size == 16:
+                    self._fill_1_ch_16b(k, N, fmt, val, x)
+                else: #4 Bytes sample
+                    self._fill_1_ch_32b(k, N, fmt, val, x)
+                        
+        elif (num_of_chan == 2):
+            for k in range(N):
+                val_0 = round(A * numpy.sin(2*numpy.pi*k*(f0/Fs)))
+                val_1 = round(A * numpy.sin(2*numpy.pi*k*(2*f0/Fs)))
+                if sample_size == 8:
+                    self._fill_2_ch_8b(k, N, fmt, val_0, val_1, x)
+                elif sample_size == 16:
+                    self._fill_2_ch_16b(k, N, fmt, val_0, val_1, x)
+                else: #4 Bytes sample
+                    self._fill_2_ch_32b(k, N, fmt, val_0, val_1, x)
+                    
+        elif (num_of_chan == 8):
+            for k in range(N):
+                val_0 = round(A * numpy.sin(2*numpy.pi*k*(f0/Fs)))
+                val_1 = round(A * numpy.sin(2*numpy.pi*k*(2*f0/Fs)))
+                val_2 = round(A * numpy.sin(2*numpy.pi*k*(3*f0/Fs)))
+                val_3 = round(A * numpy.sin(2*numpy.pi*k*(4*f0/Fs)))
+                val_4 = round(A * numpy.sin(2*numpy.pi*k*(5*f0/Fs)))
+                val_5 = round(A * numpy.sin(2*numpy.pi*k*(6*f0/Fs)))
+                val_6 = round(A * numpy.sin(2*numpy.pi*k*(7*f0/Fs)))
+                val_7 = round(A * numpy.sin(2*numpy.pi*k*(8*f0/Fs)))
+                if sample_size == 8:
+                    self._fill_8_ch_8b(k, N, fmt, val_0, val_1, val_2, val_3, val_4, val_5, val_6, val_7, x)
+                elif sample_size == 16:
+                    self._fill_8_ch_16b(k, N, fmt, val_0, val_1, val_2, val_3, val_4, val_5, val_6, val_7, x)
+                else: #4 Bytes sample
+                    self._fill_8_ch_32b(k, N, fmt, val_0, val_1, val_2, val_3, val_4, val_5, val_6, val_7, x)
+        else:
+            raise Exception("only 2 or 8 channels can be interleaced!")
+            
+        #Save samples into binary file
+        if (filesuffix):
+            filename = "ref_sine" + "_f0-" + str(f0) + "Hz" + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-" + str(num_of_chan) + filesuffix
+        else:
+            filename = "ref_sine" + "_f0-" + str(f0) + "Hz" + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-" + str(num_of_chan)
+        with open(filename + ".bin", "wb") as binfile:
+            binfile.write(x)
+            
+    def rampupdownwave_gen_interleaced_chan(self, payload_size, sample_size, Fs, N, num_of_chan, endian, filesuffix=None):
+    
+        (B, fmt) = self._check_format(endian, sample_size)
+        x = bytearray(N*B*num_of_chan) #integers of xx Bytes
+        val = 0
+        slope_pos = True
+        for k in range(N):
+            if (num_of_chan == 1):
+                if sample_size == 8:
+                    self._fill_1_ch_8b(k, N, fmt, val, x)
+                elif sample_size == 16:
+                    self._fill_1_ch_16b(k, N, fmt, val, x)
+                else: #4 Bytes sample
+                    self._fill_1_ch_32b(k, N, fmt, val, x)
+            elif (num_of_chan == 2):
+                if sample_size == 8:
+                    self._fill_2_ch_8b(k, N, fmt, val, val, x)
+                elif sample_size == 16:
+                    self._fill_2_ch_16b(k, N, fmt, val, val, x)
+                else: #4 Bytes sample
+                    self._fill_2_ch_32b(k, N, fmt, val, val, x)
+            elif (num_of_chan == 8):
+                if sample_size == 8:
+                    self._fill_8_ch_8b(k, N, fmt, val, val, val, val, val, val, val, val, x)
+                elif sample_size == 16:
+                    self._fill_8_ch_16b(k, N, fmt, val, val, val, val, val, val, val, val, x)
+                else: #4 Bytes sample
+                    self._fill_8_ch_32b(k, N, fmt, val, val, val, val, val, val, val, val, x)
+            else:
+                raise Exception("only 2 or 8 channels can be interleaced!")
+                
+            if (slope_pos):
+                val = val + 1
+            else:
+                val = val - 1
+            if (val == payload_size):
+                slope_pos = False
+            if (val == 0):
+                slope_pos = True
+                
+        #Save samples into binary file
+        if (filesuffix):
+            filename = "ref_rampupdown" + "_max-" + str(payload_size)  + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-" + str(num_of_chan) + filesuffix
+        else:
+            filename = "ref_rampupdown" + "_max-" + str(payload_size)  + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-" + str(num_of_chan)
+        with open(filename + ".bin", "wb") as binfile:
+            binfile.write(x)
+            
+    def rampupwave_gen_interleaced_chan(self, payload_size, sample_size, Fs, N, num_of_chan, endian, filesuffix=None):
+    
+        (B, fmt) = self._check_format(endian, sample_size)
+        x = bytearray(N*B*num_of_chan) #integers of xx Bytes
+        val = 0
+        for k in range(N):
+            if (num_of_chan == 1):
+                if sample_size == 8:
+                    self._fill_1_ch_8b(k, N, fmt, val, x)
+                elif sample_size == 16:
+                    self._fill_1_ch_16b(k, N, fmt, val, x)
+                else: #4 Bytes sample
+                    self._fill_1_ch_32b(k, N, fmt, val, x)
+            elif (num_of_chan == 2):
+                if sample_size == 8:
+                    self._fill_2_ch_8b(k, N, fmt, val, val, x)
+                elif sample_size == 16:
+                    self._fill_2_ch_16b(k, N, fmt, val, val, x)
+                else: #4 Bytes sample
+                    self._fill_2_ch_32b(k, N, fmt, val, val, x)
+            elif (num_of_chan == 8):
+                if sample_size == 8:
+                    self._fill_8_ch_8b(k, N, fmt, val, val, val, val, val, val, val, val, x)
+                elif sample_size == 16:
+                    self._fill_8_ch_16b(k, N, fmt, val, val, val, val, val, val, val, val, x)
+                else: #4 Bytes sample
+                    self._fill_8_ch_32b(k, N, fmt, val, val, val, val, val, val, val, val, x)
+            else:
+                raise Exception("only 2 or 8 channels can be interleaced!")
+                
+            val = val + 1
+            if (val == payload_size):
+                val = 0
+                
+        #Save samples into binary file
+        if (filesuffix):
+            filename = "ref_rampup" + "_max-" + str(payload_size)  + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-" + str(num_of_chan) + filesuffix
+        else:
+            filename = "ref_rampup" + "_max-" + str(payload_size)  + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-" + str(num_of_chan)
+        with open(filename + ".bin", "wb") as binfile:
+            binfile.write(x)
+
+    def rampdownwave_gen_interleaced_chan(self, payload_size, sample_size, Fs, N, num_of_chan, endian, filesuffix=None):
+    
+        (B, fmt) = self._check_format(endian, sample_size)
+        x = bytearray(N*B*num_of_chan) #integers of xx Bytes
+        val = payload_size
+        for k in range(N):
+            if (num_of_chan == 1):
+                if sample_size == 8:
+                    self._fill_1_ch_8b(k, N, fmt, val, x)
+                elif sample_size == 16:
+                    self._fill_1_ch_16b(k, N, fmt, val, x)
+                else: #4 Bytes sample
+                    self._fill_1_ch_32b(k, N, fmt, val, x)
+            elif (num_of_chan == 2):
+                if sample_size == 8:
+                    self._fill_2_ch_8b(k, N, fmt, val, val, x)
+                elif sample_size == 16:
+                    self._fill_2_ch_16b(k, N, fmt, val, val, x)
+                else: #4 Bytes sample
+                    self._fill_2_ch_32b(k, N, fmt, val, val, x)
+            elif (num_of_chan == 8):
+                if sample_size == 8:
+                    self._fill_8_ch_8b(k, N, fmt, val, val, val, val, val, val, val, val, x)
+                elif sample_size == 16:
+                    self._fill_8_ch_16b(k, N, fmt, val, val, val, val, val, val, val, val, x)
+                else: #4 Bytes sample
+                    self._fill_8_ch_32b(k, N, fmt, val, val, val, val, val, val, val, val, x)
+            else:
+                raise Exception("only 2 or 8 channels can be interleaced!")
+                
+            val = val - 1
+            if (val == 0):
+                val = payload_size
+                
+        #Save samples into binary file
+        if (filesuffix):
+            filename = "ref_rampdown" + "_max-" + str(payload_size)  + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-" + str(num_of_chan) + filesuffix
+        else:
+            filename = "ref_rampdown" + "_max-" + str(payload_size)  + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-" + str(num_of_chan)
+        with open(filename + ".bin", "wb") as binfile:
+            binfile.write(x)
