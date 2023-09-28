@@ -440,6 +440,85 @@ class Tools:
         with open(filename + ".bin", "wb") as binfile:
             binfile.write(x)
             
+    def trianglewave_gen_interleaced_chan(self, payload_size, sample_size, f0, Fs, N, num_of_chan, endian, filesuffix=None):
+        #https://en.wikipedia.org/wiki/Triangle_wave
+        (B, fmt) = self._check_format(endian, sample_size)
+        A = (pow(2, payload_size)/2)-1
+        x = bytearray(N*B*num_of_chan) #integers of xx Bytes
+        f_ch_list = []
+        for idx in range(num_of_chan):
+            f_ch_list.append((idx+1)*f0) #each channel carrier is a multiple of f0
+        
+        if (num_of_chan == 1):
+            T0 = 1/f0
+            for k in range(N):
+                temp = numpy.abs(numpy.mod(k/Fs - T0/4, T0, dtype=numpy.double) - T0/2)
+                val = round((4*A*temp)/T0 - A)
+                if sample_size == 8:
+                    self._fill_1_ch_8b(k, N, fmt, val, x)
+                elif sample_size == 16:
+                    self._fill_1_ch_16b(k, N, fmt, val, x)
+                else: #4 Bytes sample
+                    self._fill_1_ch_32b(k, N, fmt, val, x)
+                        
+        elif (num_of_chan == 2):
+            T0_0 = 1/f0
+            T0_1 = 1/(2*f0)
+            for k in range(N):
+                temp_0 = numpy.abs(numpy.mod(k/Fs - T0_0/4, T0_0, dtype=numpy.double) - T0_0/2)
+                temp_1 = numpy.abs(numpy.mod(k/Fs - T0_1/4, T0_1, dtype=numpy.double) - T0_1/2)
+                val_0 = round((4*A*temp_0)/T0_0 - A)
+                val_1 = round((4*A*temp_1)/T0_1 - A)
+                if sample_size == 8:
+                    self._fill_2_ch_8b(k, N, fmt, val_0, val_1, x)
+                elif sample_size == 16:
+                    self._fill_2_ch_16b(k, N, fmt, val_0, val_1, x)
+                else: #4 Bytes sample
+                    self._fill_2_ch_32b(k, N, fmt, val_0, val_1, x)
+                    
+        elif (num_of_chan == 8):
+            T0_0 = 1/f0
+            T0_1 = 1/(2*f0)
+            T0_2 = 1/(3*f0)
+            T0_3 = 1/(4*f0)
+            T0_4 = 1/(5*f0)
+            T0_5 = 1/(6*f0)
+            T0_6 = 1/(7*f0)
+            T0_7 = 1/(8*f0)
+            for k in range(N):
+                temp_0 = numpy.abs(numpy.mod(k/Fs - T0_0/4, T0_0, dtype=numpy.double) - T0_0/2)
+                temp_1 = numpy.abs(numpy.mod(k/Fs - T0_1/4, T0_1, dtype=numpy.double) - T0_1/2)
+                temp_2 = numpy.abs(numpy.mod(k/Fs - T0_2/4, T0_2, dtype=numpy.double) - T0_2/2)
+                temp_3 = numpy.abs(numpy.mod(k/Fs - T0_3/4, T0_3, dtype=numpy.double) - T0_3/2)
+                temp_4 = numpy.abs(numpy.mod(k/Fs - T0_4/4, T0_4, dtype=numpy.double) - T0_4/2)
+                temp_5 = numpy.abs(numpy.mod(k/Fs - T0_5/4, T0_5, dtype=numpy.double) - T0_5/2)
+                temp_6 = numpy.abs(numpy.mod(k/Fs - T0_6/4, T0_6, dtype=numpy.double) - T0_6/2)
+                temp_7 = numpy.abs(numpy.mod(k/Fs - T0_7/4, T0_7, dtype=numpy.double) - T0_7/2)
+                val_0 = round((4*A*temp_0)/T0_0 - A)
+                val_1 = round((4*A*temp_1)/T0_1 - A)
+                val_2 = round((4*A*temp_2)/T0_2 - A)
+                val_3 = round((4*A*temp_3)/T0_3 - A)
+                val_4 = round((4*A*temp_4)/T0_4 - A)
+                val_5 = round((4*A*temp_5)/T0_5 - A)
+                val_6 = round((4*A*temp_6)/T0_6 - A)
+                val_7 = round((4*A*temp_7)/T0_7 - A)
+                if sample_size == 8:
+                    self._fill_8_ch_8b(k, N, fmt, val_0, val_1, val_2, val_3, val_4, val_5, val_6, val_7, x)
+                elif sample_size == 16:
+                    self._fill_8_ch_16b(k, N, fmt, val_0, val_1, val_2, val_3, val_4, val_5, val_6, val_7, x)
+                else: #4 Bytes sample
+                    self._fill_8_ch_32b(k, N, fmt, val_0, val_1, val_2, val_3, val_4, val_5, val_6, val_7, x)
+        else:
+            raise Exception("only 2 or 8 channels can be interleaced!")
+            
+        #Save samples into binary file
+        if (filesuffix):
+            filename = "ref_sine" + "_f0-" + str(f0) + "Hz" + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-" + str(num_of_chan) + filesuffix
+        else:
+            filename = "ref_sine" + "_f0-" + str(f0) + "Hz" + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-" + str(num_of_chan)
+        with open(filename + ".bin", "wb") as binfile:
+            binfile.write(x)
+            
     def rampupdownwave_gen_interleaced_chan(self, payload_size, sample_size, Fs, N, num_of_chan, endian, filesuffix=None):
     
         (B, fmt) = self._check_format(endian, sample_size)
