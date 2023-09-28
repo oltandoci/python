@@ -513,9 +513,9 @@ class Tools:
             
         #Save samples into binary file
         if (filesuffix):
-            filename = "ref_sine" + "_f0-" + str(f0) + "Hz" + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-" + str(num_of_chan) + filesuffix
+            filename = "ref_triangle" + "_f0-" + str(f0) + "Hz" + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-" + str(num_of_chan) + filesuffix
         else:
-            filename = "ref_sine" + "_f0-" + str(f0) + "Hz" + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-" + str(num_of_chan)
+            filename = "ref_triangle" + "_f0-" + str(f0) + "Hz" + "_Fs-" + str(Fs) + "Hz" + "_t-" + str(int(N/Fs)) + "sec" + "_N-" + str(N) + "_B-" + str(B) + "_ch-" + str(num_of_chan)
         with open(filename + ".bin", "wb") as binfile:
             binfile.write(x)
             
